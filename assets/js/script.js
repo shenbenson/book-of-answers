@@ -253,7 +253,7 @@ function resetCard() {
     dom.cardPrompt.classList.remove("loading-dots");
     dom.cardPrompt.style.opacity = "";
     dom.cardPrompt.style.transform = "";
-    dom.answerText.textContent = "";
+    dom.answerText.innerHTML = "";
     dom.cardAnswer.setAttribute("aria-hidden", "true");
 
     dom.answerBtn.textContent = lab.reveal;
@@ -291,10 +291,13 @@ function handleButtonClick() {
 
     setTimeout(() => {
         dom.cardPrompt.classList.remove("loading-dots");
-        dom.answerText.textContent = answer;
+        revealAnswer(answer);
         dom.cardAnswer.removeAttribute("aria-hidden");
         dom.card.classList.remove("revealing");
         dom.card.classList.add("revealed");
+
+        const charCount = answer.length;
+        const revealDuration = Math.min(charCount * 30, 600) + 400;
 
         setTimeout(() => {
             state = "answered";
@@ -302,8 +305,46 @@ function handleButtonClick() {
             dom.answerBtn.disabled = false;
             dom.shareBtn.classList.remove("hidden");
             addToHistory(answer);
-        }, 350);
+        }, revealDuration);
     }, 800);
+}
+
+/* ── Character Reveal ── */
+
+function revealAnswer(text) {
+    dom.answerText.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    [...text].forEach((ch, i) => {
+        const span = document.createElement("span");
+        span.className = "char";
+        span.textContent = ch === " " ? "\u00A0" : ch;
+        span.style.animationDelay = (i * 30) + "ms";
+        frag.appendChild(span);
+    });
+    dom.answerText.appendChild(frag);
+}
+
+/* ── Card Tilt ── */
+
+function initCardTilt() {
+    const container = document.querySelector(".card-container");
+    const card = dom.card;
+    if (!container || !card) return;
+
+    const isTouchDevice = "ontouchstart" in window;
+    if (isTouchDevice) return;
+
+    container.addEventListener("mousemove", (e) => {
+        if (state === "loading") return;
+        const rect = container.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 4}deg)`;
+    });
+
+    container.addEventListener("mouseleave", () => {
+        card.style.transform = "rotateY(0) rotateX(0)";
+    });
 }
 
 /* ── Share ── */
@@ -371,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.answerBtn.addEventListener("click", handleButtonClick);
     dom.shareBtn.addEventListener("click", shareAnswer);
     dom.historyToggle.addEventListener("click", toggleHistory);
+    initCardTilt();
 
     document.addEventListener("keydown", (e) => {
         if ((e.key === "Enter" || e.key === " ") && document.activeElement === dom.answerBtn) {
