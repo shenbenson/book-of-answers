@@ -8,7 +8,6 @@
   <title>答案之书 / Book of Answers</title>
 
   <meta name="description" content="答案之书，提供简体中文、繁体中文和英文三种语言的随机智慧答案。揭示生活、工作、感情等问题的最佳建议。The Book of Answers offers random wise answers in Simplified Chinese, Traditional Chinese, and English, revealing the best advice for questions about life, work, relationships, and more." />
-
   <meta name="keywords" content="答案, 随机答案, Book of Answers, 智慧答案, 在线占卜, 中文答案, 英文答案" />
   <meta name="author" content="shenbenson" />
 
@@ -18,102 +17,67 @@
   <meta property="og:url" content="https://boa.bensonshen.com/" />
   <meta property="og:image" content="https://boa.bensonshen.com/assets/img/preview.png" />
 
+  <meta name="theme-color" content="#1a1740" />
   <link rel="icon" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="preload" href="assets/js/script.js" as="script">
+  <link rel="preload" href="assets/js/script.js" as="script" />
 </head>
 
 <body>
-  <h1 id="title">📖 答案之书 / Book of Answers</h1>
+  <div class="particles" id="particles" aria-hidden="true"></div>
 
-  <select id="langSelect" onchange="changeLanguage(this.value)">
-    <option value="zh">简体中文</option>
-    <option value="zh-TW">繁體中文</option>
-    <option value="en">English</option>
-  </select>
+  <main class="container" role="main">
+    <h1 id="title"><em class="icon">&#x1F4D6;</em><span id="titleText">答案之书</span></h1>
 
-  <div class="answer-box" id="answer">你的问题想好了吗？点击下方揭示答案。</div>
+    <div class="lang-selector">
+      <label for="langSelect" class="sr-only">Language</label>
+      <select id="langSelect" aria-label="Select language">
+        <option value="zh">简体中文</option>
+        <option value="zh-TW">繁體中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
 
-  <div>
-    <button id="answerButton" onclick="handleButtonClick()">揭示答案</button>
-    <button id="shareButton" onclick="shareAnswer()" style="display:none;">分享给朋友</button>
-  </div>
+    <div class="card-container" id="cardContainer" role="region" aria-live="polite" aria-label="Answer card">
+      <div class="card" id="card">
+        <div class="card-face card-front" id="cardFront">
+          你的问题想好了吗？<br>点击下方揭示答案。
+        </div>
+        <div class="card-face card-back" id="cardBack" aria-hidden="true"></div>
+      </div>
+    </div>
 
-  <script>
-    let currentLang = "zh";
-    const labels = {
-      zh: { 
-      title: "📖 答案之书", 
-      defaultText: "你的问题想好了吗？点击下方揭示答案。", 
-      reveal: "揭示答案", 
-      again: "再问一个问题", 
-      share: "分享给朋友"
-      },
-      "zh-TW": { 
-      title: "📖 答案之書", 
-      defaultText: "你的問題想好了嗎？點擊下方揭示答案。", 
-      reveal: "揭示答案", 
-      again: "再問一個問題", 
-      share: "分享給朋友"
-      },
-      en: { 
-      title: "📖 Book of Answers", 
-      defaultText: "Have you formed your question?\nClick below to reveal the answer.", 
-      reveal: "Reveal Answer", 
-      again: "Ask Another Question", 
-      share: "Share with Friends"
-      }
-    };
+    <div class="button-group">
+      <button class="btn-primary" id="answerButton">揭示答案</button>
+      <button class="btn-secondary hidden" id="shareButton">分享给朋友</button>
+    </div>
 
-    function changeLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem("preferredLang", lang);
-      const lab = labels[lang];
-
-      document.getElementById("title").textContent = lab.title;
-      document.getElementById("answer").textContent = lab.defaultText;
-      document.getElementById("answerButton").textContent = lab.reveal;
-      document.getElementById("shareButton").style.display = "none";
-      answered = false;
-    }
-
-    function getUserLanguage() {
-      const savedLang = localStorage.getItem("preferredLang");
-      if (savedLang && labels[savedLang]) {
-        return savedLang;
-      }
-      
-      const browserLang = navigator.language || navigator.userLanguage;
-      if (browserLang) {
-        if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-HK')) {
-          return "zh-TW";
-        } else if (browserLang.startsWith('zh')) {
-          return "zh";
-        } else if (browserLang.startsWith('en')) {
-          return "en";
-        }
-      }
-
-      return "zh";
-    }
-
-    currentLang = getUserLanguage();
-    document.getElementById("langSelect").value = currentLang;
-    changeLanguage(currentLang);
-  </script>
+    <section class="history-section hidden" id="historySection" aria-label="Answer history">
+      <button class="history-toggle" id="historyToggle" aria-expanded="false">
+        <span class="arrow">&#x25BC;</span>
+        <span id="historyLabel">历史答案</span>
+      </button>
+      <ul class="history-list" id="historyList" role="list"></ul>
+    </section>
+  </main>
 
   <footer>
-    © 2025 答案之书 / Book of Answers by <a href="/">shenbenson</a>
+    &copy; <span id="year"></span> 答案之书 / Book of Answers by <a href="https://bensonshen.com" target="_blank" rel="noopener">Benson Shen</a>
   </footer>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script src="assets/js/script.js" defer></script>
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TYBPTTJ7Q9"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-TYBPTTJ7Q9');
   </script>
 </body>

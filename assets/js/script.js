@@ -1,3 +1,5 @@
+/* ── Answer Data ── */
+
 const zhAnswers = [
     "是的。", "不是。", "也许吧。", "再试一次。", "时机未到。",
     "放手也是一种智慧。", "大胆一点。", "不要犹豫。", "听从直觉。",
@@ -42,6 +44,7 @@ const zhAnswers = [
     "你已经走得够远，现在可以休息一下了。",
     "只要迈出第一步，一切都会不同。"
 ];
+
 const twAnswers = [
     "是的。", "不是。", "也許吧。", "再試一次。", "時機未到。",
     "放手也是一種智慧。", "大膽一點。", "不要猶豫。", "聽從直覺。",
@@ -86,6 +89,7 @@ const twAnswers = [
     "你已經走得夠遠，現在可以休息一下了。",
     "只要邁出第一步，一切都會不同。"
 ];
+
 const enAnswers = [
     "Yes.", "No.", "Maybe.", "Try again.", "The time is not right.",
     "Letting go is a form of wisdom.", "Be bolder.", "Don't hesitate.", "Trust your intuition.",
@@ -133,54 +137,257 @@ const enAnswers = [
 
 const allAnswers = { zh: zhAnswers, "zh-TW": twAnswers, en: enAnswers };
 
-let answered = false;
+/* ── Labels ── */
 
-function handleButtonClick() {
-    const btn = document.getElementById("answerButton");
-    const box = document.getElementById("answer");
-    const shareBtn = document.getElementById("shareButton");
-
-    if (answered) return location.reload();
-
-    answered = true;
-    btn.disabled = true;
-    box.textContent = currentLang === "en" ? "Thinking" : currentLang === "zh" ? "翻页中" : "翻頁中";
-    box.classList.add("loading-dots");
-
-    setTimeout(() => {
-    const arr = allAnswers[currentLang];
-    const ans = arr[Math.floor(Math.random() * arr.length)];
-    box.textContent = ans;
-    box.classList.remove("loading-dots");
-
-    btn.textContent = labels[currentLang].again;
-    btn.disabled = false;
-
-    shareBtn.style.display = "inline-block";
-    shareBtn.textContent = labels[currentLang].share;
-    }, 1200);
-}
+const labels = {
+    zh: {
+        title: "答案之书",
+        defaultText: "你的问题想好了吗？<br>点击下方揭示答案。",
+        reveal: "揭示答案",
+        again: "再问一个问题",
+        share: "分享给朋友",
+        loading: "翻页中",
+        history: "历史答案"
+    },
+    "zh-TW": {
+        title: "答案之書",
+        defaultText: "你的問題想好了嗎？<br>點擊下方揭示答案。",
+        reveal: "揭示答案",
+        again: "再問一個問題",
+        share: "分享給朋友",
+        loading: "翻頁中",
+        history: "歷史答案"
+    },
+    en: {
+        title: "Book of Answers",
+        defaultText: "Have you formed your question?<br>Click below to reveal the answer.",
+        reveal: "Reveal Answer",
+        again: "Ask Again",
+        share: "Share",
+        loading: "Thinking",
+        history: "Past Answers"
+    }
+};
 
 const sharePrompts = {
-    zh: "想要人生指引吗？快来【网址】 免费体验「答案之书」，解答你的所有疑问！",
-    "zh-TW": "想要人生指引嗎？快來【网址】 免費體驗「答案之書」，解答你的所有疑問！",
+    zh: "想要人生指引吗？快来【URL】 免费体验「答案之书」，解答你的所有疑问！",
+    "zh-TW": "想要人生指引嗎？快來【URL】 免費體驗「答案之書」，解答你的所有疑問！",
     en: "Looking for guidance? Visit 【URL】 to try the \"Book of Answers\" for free and get clarity on your questions!"
 };
 
-const alertMessages = {
-    zh: "文案已复制，快分享给朋友，一起探索答案吧！",
-    "zh-TW": "文案已複製，快分享給朋友，一起探索答案吧！",
-    en: "Text copied! Share it with your friends and explore the answers together!"
+const toastMessages = {
+    zh: "已复制，快分享给朋友吧！",
+    "zh-TW": "已複製，快分享給朋友吧！",
+    en: "Copied! Share it with your friends!"
 };
+
+/* ── State ── */
+
+let currentLang = "zh";
+let state = "idle"; // idle | loading | answered
+let lastAnswerIndex = -1;
+let history = [];
+
+/* ── DOM refs ── */
+
+const $ = (id) => document.getElementById(id);
+
+const dom = {};
+
+function cacheDom() {
+    dom.titleText = $("titleText");
+    dom.langSelect = $("langSelect");
+    dom.card = $("card");
+    dom.cardFront = $("cardFront");
+    dom.cardBack = $("cardBack");
+    dom.answerBtn = $("answerButton");
+    dom.shareBtn = $("shareButton");
+    dom.historySection = $("historySection");
+    dom.historyToggle = $("historyToggle");
+    dom.historyLabel = $("historyLabel");
+    dom.historyList = $("historyList");
+    dom.toast = $("toast");
+    dom.particles = $("particles");
+    dom.year = $("year");
+}
+
+/* ── Particles ── */
+
+function createParticles() {
+    const count = window.innerWidth < 480 ? 15 : 25;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.animationDuration = (8 + Math.random() * 12) + "s";
+        p.style.animationDelay = (Math.random() * 10) + "s";
+        p.style.width = p.style.height = (2 + Math.random() * 3) + "px";
+        frag.appendChild(p);
+    }
+    dom.particles.appendChild(frag);
+}
+
+/* ── Language ── */
+
+function getUserLanguage() {
+    const saved = localStorage.getItem("preferredLang");
+    if (saved && labels[saved]) return saved;
+
+    const bl = navigator.language || navigator.userLanguage || "";
+    if (bl.startsWith("zh-TW") || bl.startsWith("zh-HK")) return "zh-TW";
+    if (bl.startsWith("zh")) return "zh";
+    if (bl.startsWith("en")) return "en";
+    return "zh";
+}
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("preferredLang", lang);
+    const lab = labels[lang];
+
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang === "zh-TW" ? "zh-TW" : "en";
+    dom.titleText.textContent = lab.title;
+    dom.answerBtn.textContent = lab.reveal;
+    dom.shareBtn.textContent = lab.share;
+    dom.historyLabel.textContent = lab.history;
+
+    resetCard();
+}
+
+/* ── Card / Answer ── */
+
+function resetCard() {
+    state = "idle";
+    const lab = labels[currentLang];
+
+    dom.card.classList.remove("flipped");
+    dom.cardFront.innerHTML = lab.defaultText;
+    dom.cardFront.classList.remove("loading-dots");
+    dom.cardBack.textContent = "";
+    dom.cardBack.setAttribute("aria-hidden", "true");
+
+    dom.answerBtn.textContent = lab.reveal;
+    dom.answerBtn.disabled = false;
+    dom.shareBtn.classList.add("hidden");
+}
+
+function pickAnswer() {
+    const arr = allAnswers[currentLang];
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * arr.length);
+    } while (idx === lastAnswerIndex && arr.length > 1);
+    lastAnswerIndex = idx;
+    return arr[idx];
+}
+
+function handleButtonClick() {
+    if (state === "loading") return;
+
+    if (state === "answered") {
+        resetCard();
+        return;
+    }
+
+    // state === "idle" → reveal
+    state = "loading";
+    const lab = labels[currentLang];
+
+    dom.answerBtn.disabled = true;
+    dom.cardFront.textContent = lab.loading;
+    dom.cardFront.classList.add("loading-dots");
+
+    const answer = pickAnswer();
+
+    setTimeout(() => {
+        dom.cardFront.classList.remove("loading-dots");
+        dom.cardBack.textContent = answer;
+        dom.cardBack.removeAttribute("aria-hidden");
+        dom.card.classList.add("flipped");
+
+        setTimeout(() => {
+            state = "answered";
+            dom.answerBtn.textContent = lab.again;
+            dom.answerBtn.disabled = false;
+            dom.shareBtn.classList.remove("hidden");
+
+            addToHistory(answer);
+        }, 400);
+    }, 900);
+}
+
+/* ── Share ── */
 
 function shareAnswer() {
     const url = window.location.href;
-    const promptText = sharePrompts[currentLang].replace("【网址】", url).replace("【URL】", url);
-    navigator.clipboard.writeText(promptText).then(() => {
-    alert(alertMessages[currentLang]);
-    });
+    const text = sharePrompts[currentLang].replace("【URL】", url);
+
+    if (navigator.share) {
+        navigator.share({ title: labels[currentLang].title, text, url }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(toastMessages[currentLang]);
+        });
+    }
 }
 
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
+/* ── Toast ── */
+
+function showToast(msg) {
+    dom.toast.textContent = msg;
+    dom.toast.classList.add("show");
+    setTimeout(() => dom.toast.classList.remove("show"), 2600);
+}
+
+/* ── History ── */
+
+function addToHistory(answer) {
+    history.unshift(answer);
+    if (history.length > 10) history.pop();
+    renderHistory();
+    dom.historySection.classList.remove("hidden");
+}
+
+function renderHistory() {
+    dom.historyList.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    history.forEach((a) => {
+        const li = document.createElement("li");
+        li.className = "history-item";
+        li.textContent = a;
+        frag.appendChild(li);
+    });
+    dom.historyList.appendChild(frag);
+}
+
+function toggleHistory() {
+    const open = dom.historyList.classList.toggle("open");
+    dom.historyToggle.classList.toggle("open", open);
+    dom.historyToggle.setAttribute("aria-expanded", open);
+}
+
+/* ── Init ── */
+
+document.addEventListener("DOMContentLoaded", () => {
+    cacheDom();
+    createParticles();
+
+    dom.year.textContent = new Date().getFullYear();
+
+    currentLang = getUserLanguage();
+    dom.langSelect.value = currentLang;
+    changeLanguage(currentLang);
+
+    dom.langSelect.addEventListener("change", (e) => changeLanguage(e.target.value));
+    dom.answerBtn.addEventListener("click", handleButtonClick);
+    dom.shareBtn.addEventListener("click", shareAnswer);
+    dom.historyToggle.addEventListener("click", toggleHistory);
+
+    document.addEventListener("keydown", (e) => {
+        if ((e.key === "Enter" || e.key === " ") && document.activeElement === dom.answerBtn) {
+            e.preventDefault();
+            handleButtonClick();
+        }
+    });
 });
