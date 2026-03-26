@@ -142,26 +142,29 @@ const allAnswers = { zh: zhAnswers, "zh-TW": twAnswers, en: enAnswers };
 const labels = {
     zh: {
         title: "答案之书",
+        subtitle: "Book of Answers",
         defaultText: "你的问题想好了吗？<br>点击下方揭示答案。",
         reveal: "揭示答案",
-        again: "再问一个问题",
-        share: "分享给朋友",
+        again: "再问一次",
+        share: "分享",
         loading: "翻页中",
         history: "历史答案"
     },
     "zh-TW": {
         title: "答案之書",
+        subtitle: "Book of Answers",
         defaultText: "你的問題想好了嗎？<br>點擊下方揭示答案。",
         reveal: "揭示答案",
-        again: "再問一個問題",
-        share: "分享給朋友",
+        again: "再問一次",
+        share: "分享",
         loading: "翻頁中",
         history: "歷史答案"
     },
     en: {
         title: "Book of Answers",
+        subtitle: "Wisdom Awaits",
         defaultText: "Have you formed your question?<br>Click below to reveal the answer.",
-        reveal: "Reveal Answer",
+        reveal: "Reveal",
         again: "Ask Again",
         share: "Share",
         loading: "Thinking",
@@ -188,18 +191,19 @@ let state = "idle"; // idle | loading | answered
 let lastAnswerIndex = -1;
 let history = [];
 
-/* ── DOM refs ── */
+/* ── DOM ── */
 
 const $ = (id) => document.getElementById(id);
-
 const dom = {};
 
 function cacheDom() {
     dom.titleText = $("titleText");
+    dom.subtitle = $("subtitle");
     dom.langSelect = $("langSelect");
     dom.card = $("card");
-    dom.cardFront = $("cardFront");
-    dom.cardBack = $("cardBack");
+    dom.cardPrompt = $("cardPrompt");
+    dom.cardAnswer = $("cardAnswer");
+    dom.answerText = $("answerText");
     dom.answerBtn = $("answerButton");
     dom.shareBtn = $("shareButton");
     dom.historySection = $("historySection");
@@ -207,25 +211,7 @@ function cacheDom() {
     dom.historyLabel = $("historyLabel");
     dom.historyList = $("historyList");
     dom.toast = $("toast");
-    dom.particles = $("particles");
     dom.year = $("year");
-}
-
-/* ── Particles ── */
-
-function createParticles() {
-    const count = window.innerWidth < 480 ? 15 : 25;
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < count; i++) {
-        const p = document.createElement("div");
-        p.className = "particle";
-        p.style.left = Math.random() * 100 + "%";
-        p.style.animationDuration = (8 + Math.random() * 12) + "s";
-        p.style.animationDelay = (Math.random() * 10) + "s";
-        p.style.width = p.style.height = (2 + Math.random() * 3) + "px";
-        frag.appendChild(p);
-    }
-    dom.particles.appendChild(frag);
 }
 
 /* ── Language ── */
@@ -248,6 +234,7 @@ function changeLanguage(lang) {
 
     document.documentElement.lang = lang === "zh" ? "zh-CN" : lang === "zh-TW" ? "zh-TW" : "en";
     dom.titleText.textContent = lab.title;
+    dom.subtitle.textContent = lab.subtitle;
     dom.answerBtn.textContent = lab.reveal;
     dom.shareBtn.textContent = lab.share;
     dom.historyLabel.textContent = lab.history;
@@ -255,17 +242,19 @@ function changeLanguage(lang) {
     resetCard();
 }
 
-/* ── Card / Answer ── */
+/* ── Card ── */
 
 function resetCard() {
     state = "idle";
     const lab = labels[currentLang];
 
-    dom.card.classList.remove("flipped");
-    dom.cardFront.innerHTML = lab.defaultText;
-    dom.cardFront.classList.remove("loading-dots");
-    dom.cardBack.textContent = "";
-    dom.cardBack.setAttribute("aria-hidden", "true");
+    dom.card.classList.remove("revealed", "revealing");
+    dom.cardPrompt.innerHTML = lab.defaultText;
+    dom.cardPrompt.classList.remove("loading-dots");
+    dom.cardPrompt.style.opacity = "";
+    dom.cardPrompt.style.transform = "";
+    dom.answerText.textContent = "";
+    dom.cardAnswer.setAttribute("aria-hidden", "true");
 
     dom.answerBtn.textContent = lab.reveal;
     dom.answerBtn.disabled = false;
@@ -290,31 +279,31 @@ function handleButtonClick() {
         return;
     }
 
-    // state === "idle" → reveal
     state = "loading";
     const lab = labels[currentLang];
 
     dom.answerBtn.disabled = true;
-    dom.cardFront.textContent = lab.loading;
-    dom.cardFront.classList.add("loading-dots");
+    dom.card.classList.add("revealing");
+    dom.cardPrompt.textContent = lab.loading;
+    dom.cardPrompt.classList.add("loading-dots");
 
     const answer = pickAnswer();
 
     setTimeout(() => {
-        dom.cardFront.classList.remove("loading-dots");
-        dom.cardBack.textContent = answer;
-        dom.cardBack.removeAttribute("aria-hidden");
-        dom.card.classList.add("flipped");
+        dom.cardPrompt.classList.remove("loading-dots");
+        dom.answerText.textContent = answer;
+        dom.cardAnswer.removeAttribute("aria-hidden");
+        dom.card.classList.remove("revealing");
+        dom.card.classList.add("revealed");
 
         setTimeout(() => {
             state = "answered";
             dom.answerBtn.textContent = lab.again;
             dom.answerBtn.disabled = false;
             dom.shareBtn.classList.remove("hidden");
-
             addToHistory(answer);
-        }, 400);
-    }, 900);
+        }, 350);
+    }, 800);
 }
 
 /* ── Share ── */
@@ -371,7 +360,6 @@ function toggleHistory() {
 
 document.addEventListener("DOMContentLoaded", () => {
     cacheDom();
-    createParticles();
 
     dom.year.textContent = new Date().getFullYear();
 

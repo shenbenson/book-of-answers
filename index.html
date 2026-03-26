@@ -17,21 +17,17 @@
   <meta property="og:url" content="https://boa.bensonshen.com/" />
   <meta property="og:image" content="https://boa.bensonshen.com/assets/img/preview.png" />
 
-  <meta name="theme-color" content="#1a1740" />
+  <meta name="theme-color" content="#09090b" />
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Literata:opsz,wght@7..72,400;7..72,500&family=Outfit:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="preload" href="assets/js/script.js" as="script" />
 </head>
 
 <body>
-  <div class="particles" id="particles" aria-hidden="true"></div>
-
   <main class="container" role="main">
-    <h1 id="title"><em class="icon">&#x1F4D6;</em><span id="titleText">答案之书</span></h1>
-
     <div class="lang-selector">
       <label for="langSelect" class="sr-only">Language</label>
       <select id="langSelect" aria-label="Select language">
@@ -41,12 +37,25 @@
       </select>
     </div>
 
-    <div class="card-container" id="cardContainer" role="region" aria-live="polite" aria-label="Answer card">
+    <div class="title-group">
+      <h1 id="title"><span id="titleText">答案之书</span></h1>
+      <p class="subtitle" id="subtitle">Book of Answers</p>
+    </div>
+
+    <div class="ornament" aria-hidden="true">
+      <span class="ornament-line"></span>
+      <span class="ornament-diamond"></span>
+      <span class="ornament-line"></span>
+    </div>
+
+    <div class="card-container" role="region" aria-live="polite" aria-label="Answer card">
       <div class="card" id="card">
-        <div class="card-face card-front" id="cardFront">
+        <div class="card-prompt" id="cardPrompt">
           你的问题想好了吗？<br>点击下方揭示答案。
         </div>
-        <div class="card-face card-back" id="cardBack" aria-hidden="true"></div>
+        <div class="card-answer" id="cardAnswer" aria-hidden="true">
+          <span class="card-answer-text" id="answerText"></span>
+        </div>
       </div>
     </div>
 
