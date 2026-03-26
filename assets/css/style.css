@@ -96,10 +96,9 @@ body::after {
 /* ── Language selector ── */
 
 .lang-selector {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 10;
+    display: inline-flex;
+    margin-bottom: 16px;
+    position: relative;
 }
 
 .lang-selector select {
@@ -579,11 +578,6 @@ footer a:hover {
         min-width: 0;
     }
 
-    .lang-selector {
-        position: relative;
-        align-self: flex-end;
-        margin-bottom: 24px;
-    }
 }
 
 @media (max-width: 360px) {
