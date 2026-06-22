@@ -295,6 +295,15 @@ h1 {
     50%      { box-shadow: 0 0 72px rgba(109, 40, 217, 0.20), 0 0 140px rgba(109, 40, 217, 0.08); }
 }
 
+.book-frame.revealing {
+    animation: fadeUp 0.8s var(--ease-out) 0.4s forwards, bookGlowActive 0.85s ease-in-out infinite;
+}
+
+@keyframes bookGlowActive {
+    0%, 100% { box-shadow: 0 0 56px rgba(139, 92, 246, 0.22), 0 0 110px rgba(109, 40, 217, 0.10); }
+    50%      { box-shadow: 0 0 88px rgba(139, 92, 246, 0.36), 0 0 160px rgba(109, 40, 217, 0.18); }
+}
+
 .corner {
     position: absolute;
     width: 16px;
@@ -317,6 +326,7 @@ h1 {
     line-height: 2.2;
     text-transform: uppercase;
     white-space: pre-line;
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .book-prompt.hidden,
@@ -331,6 +341,13 @@ h1 {
     gap: 22px;
     width: 100%;
     animation: fadeRise 0.9s ease-out both;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.book-frame.revealing .book-prompt,
+.book-frame.revealing .book-answer {
+    opacity: 0.2;
+    filter: blur(3px);
 }
 
 .answer-text {

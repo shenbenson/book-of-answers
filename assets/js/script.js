@@ -382,21 +382,6 @@ function changeLanguage(lang, persist = true) {
 
 /* ── Book ── */
 
-function resetBook() {
-    state = "idle";
-    const lab = labels[currentLang];
-
-    dom.bookFrame.classList.remove("revealing");
-    dom.bookPrompt.textContent = lab.instruction;
-    dom.bookPrompt.classList.remove("hidden");
-    dom.bookAnswer.classList.add("hidden");
-    dom.bookAnswer.setAttribute("aria-hidden", "true");
-
-    dom.openBtn.textContent = lab.open;
-    dom.openBtn.disabled = false;
-    dom.shareBtn.classList.add("hidden");
-}
-
 function pickAnswer() {
     let idx;
     do {
@@ -414,23 +399,42 @@ function formatDate(date) {
     return `${d}  ·  ${t}`;
 }
 
+function resetBook() {
+    state = "idle";
+    const lab = labels[currentLang];
+
+    dom.bookPrompt.textContent = lab.instruction;
+    dom.bookPrompt.classList.remove("hidden");
+    dom.bookAnswer.classList.add("hidden");
+    dom.bookAnswer.setAttribute("aria-hidden", "true");
+
+    dom.openBtn.textContent = lab.open;
+    dom.openBtn.disabled = false;
+    dom.shareBtn.classList.add("hidden");
+}
+
 function handleOpenClick() {
     if (state === "loading") return;
 
-    if (state === "revealed") {
-        resetBook();
-        return;
-    }
+    const wasRevealed = state === "revealed";
 
     if (revealTimer) clearTimeout(revealTimer);
     state = "loading";
     dom.openBtn.disabled = true;
+    dom.shareBtn.classList.add("hidden");
     dom.bookFrame.classList.add("revealing");
     playPageTurn();
 
-    const answer = pickAnswer();
+    const answer = wasRevealed ? null : pickAnswer();
 
     revealTimer = setTimeout(() => {
+        dom.bookFrame.classList.remove("revealing");
+
+        if (wasRevealed) {
+            resetBook();
+            return;
+        }
+
         playChime();
         revealTime = new Date();
 
@@ -442,7 +446,6 @@ function handleOpenClick() {
         dom.bookPrompt.classList.add("hidden");
         dom.bookAnswer.classList.remove("hidden");
         dom.bookAnswer.removeAttribute("aria-hidden");
-        dom.bookFrame.classList.remove("revealing");
 
         state = "revealed";
         dom.openBtn.textContent = lab.again;
