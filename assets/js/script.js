@@ -270,8 +270,8 @@ function cacheDom() {
     dom.shareBtn = $("shareButton");
     dom.toast = $("toast");
     dom.year = $("year");
-    dom.langModal = $("langModal");
-    dom.langModalBtns = document.querySelectorAll(".lang-modal-btn");
+    dom.langPrompt = $("langPrompt");
+    dom.langPromptBtns = document.querySelectorAll(".lang-prompt-btn");
 }
 
 /* ── Audio ── */
@@ -506,13 +506,18 @@ document.addEventListener("DOMContentLoaded", () => {
     applyMuteUI();
 
     if (detected.needsPrompt) {
-        dom.langModal.classList.remove("hidden");
+        dom.langPrompt.classList.remove("hidden");
+    } else {
+        dom.bookFrame.classList.remove("hidden");
+        dom.openBtn.classList.remove("hidden");
     }
 
-    dom.langModalBtns.forEach((btn) => {
+    dom.langPromptBtns.forEach((btn) => {
         btn.addEventListener("click", () => {
             changeLanguage(btn.dataset.lang);
-            dom.langModal.classList.add("hidden");
+            dom.langPrompt.classList.add("hidden");
+            dom.bookFrame.classList.remove("hidden");
+            dom.openBtn.classList.remove("hidden");
         });
     });
 

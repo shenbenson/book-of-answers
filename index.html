@@ -57,7 +57,7 @@
       <span class="divider-line divider-line-right"></span>
     </div>
 
-    <div class="book-frame" id="bookFrame" role="region" aria-live="polite" aria-label="Answer card">
+    <div class="book-frame hidden" id="bookFrame" role="region" aria-live="polite" aria-label="Answer card">
       <span class="corner corner-tl" aria-hidden="true"></span>
       <span class="corner corner-tr" aria-hidden="true"></span>
       <span class="corner corner-bl" aria-hidden="true"></span>
@@ -71,7 +71,21 @@
       </div>
     </div>
 
-    <button type="button" class="open-btn" id="openButton"></button>
+    <div class="lang-prompt hidden" id="langPrompt" role="region" aria-label="Select language">
+      <span class="corner corner-tl" aria-hidden="true"></span>
+      <span class="corner corner-tr" aria-hidden="true"></span>
+      <span class="corner corner-bl" aria-hidden="true"></span>
+      <span class="corner corner-br" aria-hidden="true"></span>
+
+      <p class="lang-prompt-title">选择语言 / Select Language</p>
+      <div class="lang-prompt-options">
+        <button type="button" class="lang-prompt-btn" data-lang="zh">简体中文</button>
+        <button type="button" class="lang-prompt-btn" data-lang="zh-TW">繁體中文</button>
+        <button type="button" class="lang-prompt-btn" data-lang="en">English</button>
+      </div>
+    </div>
+
+    <button type="button" class="open-btn hidden" id="openButton"></button>
 
     <div class="share-wrap">
       <button type="button" class="share-btn hidden" id="shareButton"></button>
@@ -83,17 +97,6 @@
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <div class="lang-modal hidden" id="langModal" role="dialog" aria-modal="true" aria-label="Select language">
-    <div class="lang-modal-card">
-      <p class="lang-modal-title">选择语言 / Select Language</p>
-      <div class="lang-modal-options">
-        <button type="button" class="lang-modal-btn" data-lang="zh">简体中文</button>
-        <button type="button" class="lang-modal-btn" data-lang="zh-TW">繁體中文</button>
-        <button type="button" class="lang-modal-btn" data-lang="en">English</button>
-      </div>
-    </div>
-  </div>
 
   <script src="assets/js/script.js" defer></script>
 
