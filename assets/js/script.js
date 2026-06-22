@@ -270,6 +270,8 @@ function cacheDom() {
     dom.shareBtn = $("shareButton");
     dom.toast = $("toast");
     dom.year = $("year");
+    dom.langModal = $("langModal");
+    dom.langModalBtns = document.querySelectorAll(".lang-modal-btn");
 }
 
 /* ── Audio ── */
@@ -341,20 +343,19 @@ function playChime() {
 
 /* ── Language ── */
 
-function getUserLanguage() {
+function detectLanguage() {
     const saved = localStorage.getItem("preferredLang");
-    if (saved && labels[saved]) return saved;
+    if (saved && labels[saved]) return { lang: saved, needsPrompt: false };
 
     const bl = navigator.language || navigator.userLanguage || "";
-    if (bl.startsWith("zh-TW") || bl.startsWith("zh-HK")) return "zh-TW";
-    if (bl.startsWith("zh")) return "zh";
-    if (bl.startsWith("en")) return "en";
-    return "zh";
+    if (bl.startsWith("zh-TW") || bl.startsWith("zh-HK")) return { lang: "zh-TW", needsPrompt: false };
+    if (bl.startsWith("zh")) return { lang: "zh", needsPrompt: false };
+    return { lang: "en", needsPrompt: true };
 }
 
-function changeLanguage(lang) {
+function changeLanguage(lang, persist = true) {
     currentLang = lang;
-    localStorage.setItem("preferredLang", lang);
+    if (persist) localStorage.setItem("preferredLang", lang);
     const lab = labels[lang];
 
     document.documentElement.lang = localeMap[lang];
@@ -499,9 +500,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     dom.year.textContent = new Date().getFullYear();
 
-    currentLang = getUserLanguage();
-    changeLanguage(currentLang);
+    const detected = detectLanguage();
+    currentLang = detected.lang;
+    changeLanguage(currentLang, !detected.needsPrompt);
     applyMuteUI();
+
+    if (detected.needsPrompt) {
+        dom.langModal.classList.remove("hidden");
+    }
+
+    dom.langModalBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            changeLanguage(btn.dataset.lang);
+            dom.langModal.classList.add("hidden");
+        });
+    });
 
     Object.entries(dom.langBtns).forEach(([code, btn]) => {
         btn.addEventListener("click", () => changeLanguage(code));

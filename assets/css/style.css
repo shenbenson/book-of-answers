@@ -467,6 +467,72 @@ html[lang="zh-TW"] .answer-text {
     transform: translateX(-50%) translateY(0);
 }
 
+/* ── Language modal ── */
+
+.lang-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 3, 12, 0.86);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 1;
+    transition: opacity 0.3s var(--ease-out);
+}
+
+.lang-modal.hidden {
+    display: none;
+}
+
+.lang-modal-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-hover);
+    border-radius: 4px;
+    padding: 40px 36px;
+    width: min(320px, 86vw);
+    text-align: center;
+    box-shadow: 0 0 60px rgba(109, 40, 217, 0.15);
+}
+
+.lang-modal-title {
+    margin: 0 0 24px;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--text);
+}
+
+.lang-modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lang-modal-btn {
+    background: transparent;
+    border: 1px solid rgba(109, 40, 217, 0.38);
+    color: var(--text);
+    padding: 12px 0;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.25s;
+    outline: none;
+}
+
+.lang-modal-btn:hover {
+    background: rgba(109, 40, 217, 0.14);
+    border-color: rgba(139, 92, 246, 0.65);
+}
+
+.lang-modal-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 /* ── Footer ── */
 
 footer {
