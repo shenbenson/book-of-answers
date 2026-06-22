@@ -17,62 +17,68 @@
   <meta property="og:url" content="https://boa.bensonshen.com/" />
   <meta property="og:image" content="https://boa.bensonshen.com/assets/img/preview.png" />
 
-  <meta name="theme-color" content="#09090b" />
+  <meta name="theme-color" content="#080612" />
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=Literata:opsz,wght@7..72,400;7..72,500&family=Outfit:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Noto+Serif+SC:wght@300;400&display=swap" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="preload" href="assets/js/script.js" as="script" />
 </head>
 
 <body>
+  <div class="orb orb-a" aria-hidden="true"></div>
+  <div class="orb orb-b" aria-hidden="true"></div>
+  <div class="orb orb-c" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <div class="lang-switch" role="group" aria-label="Select language">
+      <button type="button" class="lang-btn" id="langBtn-zh" data-lang="zh">简</button>
+      <button type="button" class="lang-btn" id="langBtn-zh-TW" data-lang="zh-TW">繁</button>
+      <button type="button" class="lang-btn" id="langBtn-en" data-lang="en">EN</button>
+    </div>
+
+    <button type="button" class="mute-btn" id="muteButton" aria-label="Toggle sound" aria-pressed="false">
+      <svg class="icon-sound" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 5.5H4.8L8.5 2.5V12.5L4.8 9.5H2V5.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><path d="M10.5 5C11.5 5.9 12 6.7 12 7.5C12 8.3 11.5 9.1 10.5 10" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg>
+      <svg class="icon-muted hidden" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 5.5H4.8L8.5 2.5V12.5L4.8 9.5H2V5.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><line x1="10.5" y1="5" x2="13.5" y2="10" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><line x1="13.5" y1="5" x2="10.5" y2="10" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
   <main class="container" role="main">
     <div class="title-group">
-      <h1 id="title"><span id="titleText">答案之书</span></h1>
-      <p class="subtitle" id="subtitle">Book of Answers</p>
+      <p class="title-oracle" id="titleOracle">— The Oracle —</p>
+      <h1 id="titleMain">Book of Answers</h1>
+      <p class="title-sub" id="titleSub">答案之书</p>
     </div>
 
-    <div class="ornament" aria-hidden="true">
-      <span class="ornament-line"></span>
-      <span class="ornament-diamond"></span>
-      <span class="ornament-line"></span>
+    <div class="divider" aria-hidden="true">
+      <span class="divider-line divider-line-left"></span>
+      <span class="divider-mark">✦</span>
+      <span class="divider-line divider-line-right"></span>
     </div>
 
-    <div class="card-container" role="region" aria-live="polite" aria-label="Answer card">
-      <div class="card" id="card">
-        <div class="card-prompt" id="cardPrompt">
-          你的问题想好了吗？<br>点击下方揭示答案。
-        </div>
-        <div class="card-answer" id="cardAnswer" aria-hidden="true">
-          <span class="card-answer-text" id="answerText"></span>
-        </div>
+    <div class="book-frame" id="bookFrame" role="region" aria-live="polite" aria-label="Answer card">
+      <span class="corner corner-tl" aria-hidden="true"></span>
+      <span class="corner corner-tr" aria-hidden="true"></span>
+      <span class="corner corner-bl" aria-hidden="true"></span>
+      <span class="corner corner-br" aria-hidden="true"></span>
+
+      <div class="book-prompt" id="bookPrompt"></div>
+
+      <div class="book-answer hidden" id="bookAnswer" aria-hidden="true">
+        <p class="answer-text" id="answerText"></p>
+        <p class="answer-date" id="answerDate"></p>
       </div>
     </div>
 
-    <div class="button-group">
-      <button class="btn-primary" id="answerButton">揭示答案</button>
-      <button class="btn-secondary hidden" id="shareButton">分享给朋友</button>
-    </div>
+    <button type="button" class="open-btn" id="openButton"></button>
 
-    <section class="history-section hidden" id="historySection" aria-label="Answer history">
-      <button class="history-toggle" id="historyToggle" aria-expanded="false">
-        <span class="arrow">&#x25BC;</span>
-        <span id="historyLabel">历史答案</span>
-      </button>
-      <ul class="history-list" id="historyList" role="list"></ul>
-    </section>
+    <div class="share-wrap">
+      <button type="button" class="share-btn hidden" id="shareButton"></button>
+    </div>
   </main>
 
   <footer>
-    <div class="lang-selector">
-      <label for="langSelect" class="sr-only">Language</label>
-      <select id="langSelect" aria-label="Select language">
-        <option value="zh">简体中文</option>
-        <option value="zh-TW">繁體中文</option>
-        <option value="en">English</option>
-      </select>
-    </div>
     <p>&copy; <span id="year"></span> 答案之书 / Book of Answers by <a href="https://yumolab.com" target="_blank" rel="noopener">Yumo Lab</a></p>
   </footer>
 
