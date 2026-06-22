@@ -200,7 +200,7 @@ const answers = [
 
 const labels = {
     zh: {
-        oracle: "— 神谕 —",
+        oracle: "— 指引 —",
         main: "答案之书",
         sub: "Book of Answers",
         instruction: "心中默想你的问题\n翻开答案之书",
@@ -210,7 +210,7 @@ const labels = {
         copied: "已复制到剪贴板",
     },
     "zh-TW": {
-        oracle: "— 神諭 —",
+        oracle: "— 指引 —",
         main: "答案之書",
         sub: "Book of Answers",
         instruction: "心中默想你的問題\n翻開答案之書",
@@ -220,7 +220,7 @@ const labels = {
         copied: "已複製到剪貼板",
     },
     en: {
-        oracle: "— The Oracle —",
+        oracle: "— Guidance —",
         main: "Book of Answers",
         sub: "答案之书",
         instruction: "Hold your question in mind\nand open the book",
@@ -278,58 +278,65 @@ function getAudioCtx() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-    }
     return audioCtx;
+}
+
+function ensureAudioCtx() {
+    const ctx = getAudioCtx();
+    if (ctx.state === "suspended") {
+        return ctx.resume().then(() => ctx);
+    }
+    return Promise.resolve(ctx);
 }
 
 function playPageTurn() {
     if (muted) return;
-    try {
-        const ctx = getAudioCtx();
-        const sr = ctx.sampleRate;
-        const n = Math.floor(sr * 0.11);
-        const buf = ctx.createBuffer(1, n, sr);
-        const d = buf.getChannelData(0);
-        for (let i = 0; i < n; i++) {
-            const t = i / n;
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.2) * 0.18;
-        }
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        const filt = ctx.createBiquadFilter();
-        filt.type = "bandpass";
-        filt.frequency.value = 3800;
-        filt.Q.value = 0.45;
-        const gain = ctx.createGain();
-        gain.gain.value = 0.8;
-        src.connect(filt);
-        filt.connect(gain);
-        gain.connect(ctx.destination);
-        src.start();
-    } catch (e) {}
+    ensureAudioCtx()
+        .then((ctx) => {
+            const sr = ctx.sampleRate;
+            const n = Math.floor(sr * 0.11);
+            const buf = ctx.createBuffer(1, n, sr);
+            const d = buf.getChannelData(0);
+            for (let i = 0; i < n; i++) {
+                const t = i / n;
+                d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.2) * 0.18;
+            }
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            const filt = ctx.createBiquadFilter();
+            filt.type = "bandpass";
+            filt.frequency.value = 3800;
+            filt.Q.value = 0.45;
+            const gain = ctx.createGain();
+            gain.gain.value = 0.8;
+            src.connect(filt);
+            filt.connect(gain);
+            gain.connect(ctx.destination);
+            src.start();
+        })
+        .catch(() => {});
 }
 
 function playChime() {
     if (muted) return;
-    try {
-        const ctx = getAudioCtx();
-        const now = ctx.currentTime;
-        [[396, 0, 2.4, 0.12], [528, 0.07, 2.2, 0.09], [660, 0.14, 1.8, 0.06]].forEach(([freq, delay, dur, vol]) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0, now + delay);
-            gain.gain.linearRampToValueAtTime(vol, now + delay + 0.018);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + delay + dur);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now + delay);
-            osc.stop(now + delay + dur);
-        });
-    } catch (e) {}
+    ensureAudioCtx()
+        .then((ctx) => {
+            const now = ctx.currentTime;
+            [[396, 0, 2.4, 0.12], [528, 0.07, 2.2, 0.09], [660, 0.14, 1.8, 0.06]].forEach(([freq, delay, dur, vol]) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0, now + delay);
+                gain.gain.linearRampToValueAtTime(vol, now + delay + 0.018);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + delay + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + delay);
+                osc.stop(now + delay + dur);
+            });
+        })
+        .catch(() => {});
 }
 
 /* ── Language ── */
@@ -467,11 +474,6 @@ function shareAnswer() {
     const url = window.location.href;
     const title = `✦ ${labels[currentLang].main}`;
     const body = `"${text}"\n\n— ${dateStr}\n\n${url}`;
-
-    if (navigator.share) {
-        navigator.share({ title, text: body }).catch(() => {});
-        return;
-    }
 
     if (navigator.clipboard) {
         navigator.clipboard

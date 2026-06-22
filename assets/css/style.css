@@ -136,7 +136,7 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-family: var(--font-ui);
-    font-size: 13px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     transition: all 0.25s;
     outline: none;
@@ -216,7 +216,7 @@ body {
 .title-oracle,
 .title-sub {
     margin: 0;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--text-tertiary);
     letter-spacing: 0.45em;
     text-transform: uppercase;
@@ -263,7 +263,7 @@ h1 {
 
 .divider-mark {
     color: var(--text-muted);
-    font-size: 7px;
+    font-size: 9px;
     letter-spacing: 0.6em;
     animation: softPulse 3.5s ease-in-out infinite;
 }
@@ -309,7 +309,7 @@ h1 {
 .book-prompt {
     margin: 0;
     width: 100%;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     color: var(--text-secondary);
     letter-spacing: 0.18em;
@@ -346,10 +346,17 @@ h1 {
 
 .answer-date {
     margin: 0;
-    font-size: 10px;
+    font-size: 13px;
     color: var(--text-secondary);
     letter-spacing: 0.18em;
     text-transform: uppercase;
+    font-variant-numeric: lining-nums;
+    font-feature-settings: "lnum";
+}
+
+html[lang="zh-CN"] .answer-text,
+html[lang="zh-TW"] .answer-text {
+    font-style: normal;
 }
 
 @keyframes fadeRise {
@@ -410,7 +417,7 @@ h1 {
     border: none;
     color: #6248a0;
     font-family: var(--font-ui);
-    font-size: 11px;
+    font-size: 15px;
     letter-spacing: 0.28em;
     cursor: pointer;
     padding: 2px 0;
@@ -444,7 +451,7 @@ h1 {
     color: var(--text);
     padding: 10px 28px;
     border-radius: 2px;
-    font-size: 12px;
+    font-size: 13px;
     letter-spacing: 0.16em;
     font-family: var(--font-ui);
     border: 1px solid rgba(139, 92, 246, 0.35);
@@ -466,7 +473,7 @@ footer {
     position: relative;
     z-index: 1;
     margin-top: 56px;
-    font-size: 0.7rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
     text-align: center;
     letter-spacing: 0.04em;
