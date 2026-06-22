@@ -423,7 +423,7 @@ function handleOpenClick() {
     dom.openBtn.disabled = true;
     dom.shareBtn.classList.add("hidden");
     dom.bookFrame.classList.add("revealing");
-    playPageTurn();
+    if (!wasRevealed) playPageTurn();
 
     const answer = wasRevealed ? null : pickAnswer();
 
