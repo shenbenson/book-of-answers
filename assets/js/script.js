@@ -403,6 +403,7 @@ function resetBook() {
     state = "idle";
     const lab = labels[currentLang];
 
+    dom.bookFrame.classList.remove("revealing");
     dom.bookPrompt.textContent = lab.instruction;
     dom.bookPrompt.classList.remove("hidden");
     dom.bookAnswer.classList.add("hidden");
@@ -416,24 +417,21 @@ function resetBook() {
 function handleOpenClick() {
     if (state === "loading") return;
 
-    const wasRevealed = state === "revealed";
+    if (state === "revealed") {
+        resetBook();
+        return;
+    }
 
     if (revealTimer) clearTimeout(revealTimer);
     state = "loading";
     dom.openBtn.disabled = true;
-    dom.shareBtn.classList.add("hidden");
     dom.bookFrame.classList.add("revealing");
-    if (!wasRevealed) playPageTurn();
+    playPageTurn();
 
-    const answer = wasRevealed ? null : pickAnswer();
+    const answer = pickAnswer();
 
     revealTimer = setTimeout(() => {
         dom.bookFrame.classList.remove("revealing");
-
-        if (wasRevealed) {
-            resetBook();
-            return;
-        }
 
         playChime();
         revealTime = new Date();
